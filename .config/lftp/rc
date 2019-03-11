@@ -1,1 +1,8 @@
-/Users/ayato/.config/lftp/rc
+alias lls !ls
+alias ls "cls [!.]*"
+alias ll "cls -l [!.]*"
+alias l. "cls .*"
+alias la "cls -l"
+alias vi edit
+alias vim edit
+set cmd:prompt "\\[\033[33m\]lftp \\S\\? \\u\\@\\h:\\w$ \[\033[0m\]"
