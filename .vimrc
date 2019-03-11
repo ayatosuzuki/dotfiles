@@ -1,0 +1,1 @@
+/Users/ayato/.vim/vimrc
