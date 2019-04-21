@@ -12,7 +12,6 @@ alias cp="cp -i"
 alias less='less -R'
 alias inet='ifconfig | grep -E \'$|inet'\'
 alias visj='vim -c \':e ++enc=shift-jis\''
-alias emacs="vi"
 alias py2="python"
 alias py="python3"
 
@@ -22,6 +21,7 @@ end
 
 export LSCOLORS=gxfxcxdxbxegedabagacad
 
-if [ $SHLVL = 1 ]
-    tmux
+function rm
+    mv $argv ~/.Trash/
 end
+

@@ -1,0 +1,165 @@
+#Required
+[[plugins]]
+repo = 'Shougo/dein.vim'
+
+#:NERDTreeでフォルダ構造を出す
+[[plugins]]
+repo = 'ryanoasis/vim-devicons'
+depends = ['scrooloose/nerdtree']
+hook_add = '''
+    let g:NERDTreeLimitedSyntax = 1
+    let g:NERDTreeDirArrows = 1
+    highlight! link NERDTreeFlags NERDTreeDir
+    "vim-nerdtree-syntax-highlight
+    let s:rspec_red = 'FE405F'
+    let s:git_orange = 'F54D27'
+    let s:lightPurple = "834F79"
+    let g:NERDTreeExactMatchHighlightColor = {} " this line is needed to avoid error
+    let g:NERDTreeExactMatchHighlightColor['.gitignore'] = s:git_orange " sets the color for .gitignore files
+    let g:NERDTreePatternMatchHighlightColor = {} " this line is needed to avoid error
+    let g:NERDTreePatternMatchHighlightColor['.*_spec\.rb$'] = s:rspec_red " sets the color for files ending with _spec.rb
+'''
+
+[[plugins]]
+repo = 'scrooloose/nerdtree'
+hook_add = '''
+    " dir-icons
+    let g:WebDevIconsUnicodeDecorateFolderNodes = 1
+    let g:DevIconsEnableFoldersOpenClose = 1
+    let g:WebDevIconsUnicodeDecorateFolderNodesDefaultSymbol = ''
+    let g:DevIconsDefaultFolderOpenSymbol = ''
+    " file-icons
+    let g:WebDevIconsUnicodeDecorateFileNodesExtensionSymbols = {}
+    let g:WebDevIconsUnicodeDecorateFileNodesExtensionSymbols['html'] = ''
+    let g:WebDevIconsUnicodeDecorateFileNodesExtensionSymbols['css'] = ''
+    let g:WebDevIconsUnicodeDecorateFileNodesExtensionSymbols['md'] = ''
+    let g:WebDevIconsUnicodeDecorateFileNodesExtensionSymbols['txt'] = ''
+'''
+
+#上下に出てくるカラフルなライン
+[[plugins]]
+repo = 'itchyny/lightline.vim'
+hook_add = '''
+    set hidden  " allow buffer switching without saving
+    set showtabline=2  " always show tabline
+    let g:lightline = {
+            \ 'colorscheme': 'wombat',
+            \ 'mode_map': {'c': 'NORMAL'},
+            \ 'active': {
+            \   'left': [ [ 'mode', 'paste' ], [ 'fugitive', 'filename' ] ]
+            \ },
+            \ 'component_function': {
+            \   'modified': 'LightlineModified',
+            \   'readonly': 'LightlineReadonly',
+            \   'fugitive': 'LightlineFugitive',
+            \   'filename': 'LightlineFilename',
+            \   'fileformat': 'LightlineFileformat',
+            \   'filetype': 'LightlineFiletype',
+            \   'fileencoding': 'LightlineFileencoding',
+            \   'mode': 'LightlineMode'
+            \ }
+            \ }
+    function! LightlineModified()
+      return &ft =~ 'help\|vimfiler\|gundo' ? '' : &modified ? '+' : &modifiable ? '' : '-'
+    endfunction
+
+    function! LightlineReadonly()
+      return &ft !~? 'help\|vimfiler\|gundo' && &readonly ? 'x' : ''
+    endfunction
+
+    function! LightlineFilename()
+      return ('' != LightlineReadonly() ? LightlineReadonly() . ' ' : '') .
+            \ (&ft == 'vimfiler' ? vimfiler#get_status_string() :
+            \  &ft == 'unite' ? unite#get_status_string() :
+            \  &ft == 'vimshell' ? vimshell#get_status_string() :
+            \ '' != expand('%:t') ? expand('%:t') : '[No Name]') .
+            \ ('' != LightlineModified() ? ' ' . LightlineModified() : '')
+    endfunction
+
+    function! LightlineFugitive()
+      if &ft !~? 'vimfiler\|gundo' && exists('*fugitive#head')
+        return fugitive#head()
+      else
+        return ''
+      endif
+    endfunction
+
+    function! LightlineFileformat()
+      return winwidth(0) > 70 ? &fileformat : ''
+    endfunction
+
+    function! LightlineFiletype()
+      return winwidth(0) > 70 ? (&filetype !=# '' ? &filetype : 'no ft') : ''
+    endfunction
+
+    function! LightlineFileencoding()
+      return winwidth(0) > 70 ? (&fenc !=# '' ? &fenc : &enc) : ''
+    endfunction
+
+    function! LightlineMode()
+      return winwidth(0) > 60 ? lightline#mode() : ''
+    endfunction
+'''
+
+#tomlファイルをきらびやかに
+[[plugins]]
+repo = 'cespare/vim-toml'
+on_ft = 'toml'
+
+#indentの深さを表すガイド
+[[plugins]]
+repo = 'nathanaelkane/vim-indent-guides'
+hook_add= '''
+    let g:indent_guides_enable_on_vim_startup = 1
+    let g:indent_guides_guide_size = 1
+    let g:indent_guides_start_level = 2
+    let g:indent_guides_auto_colors=0
+    augroup indent_guides_autocmd
+        autocmd!
+        autocmd VimEnter,Colorscheme * :hi IndentGuidesOdd   ctermbg=8
+        autocmd VimEnter,Colorscheme * :hi IndentGuidesEven  ctermbg=238
+    augroup END
+'''
+
+#gcc, gcでコメントアウト、コメントイン
+[[plugins]]
+repo = 'tomtom/tcomment_vim'
+
+#間違いみたいだったら即座に教える
+[[plugins]]
+repo = 'w0rp/ale'
+hook_add = '''
+    let g:ale_lint_on_text_changed = 0
+'''
+
+#ログに色付け
+[[plugins]]
+repo = 'vim-scripts/AnsiEsc.vim'
+
+#チートシート
+[[plugins]]
+repo = 'reireias/vim-cheatsheet'
+hook_add = '''
+    let g:cheatsheet#cheat_file = '.vim/cheatsheet'
+'''
+
+#カッコをcsで変換したり
+[[plugins]]
+repo = 'tpope/vim-surround'
+
+#閉じカッコ
+[[plugins]]
+repo = 'cohama/lexima.vim'
+
+#window調整
+[[plugins]]
+repo = 'simeji/winresizer'
+
+#カーソル位置に合わせてファイルタイプを認識するライブラリ
+[[plugins]]
+repo = 'Shougo/context_filetype.vim'
+
+#tomlファイルにてvim-scriptを認識
+[[plugins]]
+repo = 'osyo-manga/vim-precious'
+depends = ['Shougo/context_filetype.vim']

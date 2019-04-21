@@ -42,6 +42,7 @@ set number
 set list
 " コマンドライン補完が強力になる
 set wildmenu
+set wildmode=full
 " コマンドを画面の最下部に表示する
 set showcmd
 " クリップボードを共有する
@@ -69,8 +70,10 @@ set backspace=indent,eol,start
 "その場にswpを作らない
 set directory-=.
 "undoを永続化
-set undofile
-set undodir=~/tmp
+if has('persistent_undo')
+    set undofile
+    set undodir=~/tmp
+endif
 "ステータスラインを常に表示
 set laststatus=2
 " カーソル行を強調表示
@@ -83,6 +86,8 @@ augroup MyAutoCmd
     autocmd BufWritePre * %s/\s\+$//e
     "テンプレートファイル
     autocmd BufNewFile *.c 0r $HOME/.vim/template/main.c
+    "ファイル指定無しでvimを開いたらNerdTreeを開く
+    autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
 augroup END
 if has("autocmd")
   " 編集箇所のカーソルを記憶
@@ -96,15 +101,19 @@ if has("autocmd")
     \ endif
   augroup END
 endif
+
 """"""""""""""""""""""""
 "オリジナルキーバインド"
 """"""""""""""""""""""""
 let mapleader = "\<Space>"
+"コード補完するとき
+inoremap <C-i> <C-p>
 " インサートモードの時に C-j でノーマルモードに戻る
 inoremap <C-j> <esc>
 vnoremap <C-j> <esc>
 "C-dでその場の文字を消す
 noremap <C-d> <Del>
+inoremap <C-d> <Del>
 "C-hで前の文字を消す
 noremap <C-h> <LEFT><Del>
 "表示上のj, k移動を取り替え
@@ -132,10 +141,18 @@ function! CommentHl()
         let s:commentHlNumber = 0
     endif
 endfunction
-"twitvim
-noremap <Leader>tp :PosttoTwitter<CR>
 " ２回esc を押したら検索のハイライトをヤメる
 nnoremap <Esc><Esc> :nohlsearch<CR><Esc>
+"vimrcを開く
+nnoremap <Leader>. :tabnew<CR>:e ~/.vimrc<CR>
+"*を使って検索したときに移動しない
+noremap * *N
+nnoremap <Leader>re :%s/<C-R><C-W>//gc<Left><Left><Left>
+"tab移動
+nnoremap <Tab> gt
+nnoremap <S-Tab> gT
+nnoremap <C-t> :tabnew<CR>
+
 
 """""""""""""""""""""""""
 "Emacsライクな挿入モード"
@@ -159,7 +176,6 @@ inoremap <silent> <expr> <Down> pumvisible() ? "\<C-n>" : "<C-r>=MyExecExCommand
 "見つからなければ行末へ。除
 function! MyJumptoEol(sep)
   if col('.') == col('$')
-
     silent exec 'normal! w'
     return ''
   endif
@@ -233,6 +249,7 @@ if v:version >= 704 && s:use_dein && !filereadable(expand("~/.vim/no_dein"))
     let s:dein_github = s:dein_dir . '/repos/github.com'
     let s:dein_repo_name = 'Shougo/dein.vim'
     let s:dein_repo_dir = s:dein_github . '/' . s:dein_repo_name
+    let s:toml_dir = s:vimdir
     " Check dein has been installed or not.
     if !isdirectory(s:dein_repo_dir)
       if confirm("Prepare dein?", "Yes\nNo", 2)  == 1
@@ -255,34 +272,23 @@ if s:dein_enabled == 1
   " Required:
   set runtimepath+=$HOME/.vim/bundles//repos/github.com/Shougo/dein.vim
   " Required:
+  if !filereadable(s:toml_dir . '/dein.toml')
+      execute "redir > " . s:toml_dir . '/dein.toml'
+      redir END
+  endif
+  if !filereadable(s:toml_dir . '/dein_lazy.toml')
+      execute "redir > " . s:toml_dir . '/dein_lazy.toml'
+      redir END
+  endif
   if dein#load_state($HOME .  '/.vim/bundles/')
     call dein#begin($HOME . '/.vim/bundles/')
     " Let dein manage dein
     " Required:
     call dein#add($HOME . '/.vim/bundles//repos/github.com/Shougo/dein.vim')
-    " Add or remove your plugins here like this:
-    "call dein#add('Shougo/neosnippet.vim')
-    "call dein#add('Shougo/neosnippet-snippets')
-    ":NERDTreeでフォルダ構造を出す
-    call dein#add('scrooloose/nerdtree')
-    "上下に出てくるカラフルなライン
-    call dein#add('itchyny/lightline.vim')
-    "tomlファイルをきらびやかに
-    call dein#add('cespare/vim-toml')
-    "indentの深さを表すガイド
-    call dein#add('nathanaelkane/vim-indent-guides')
-    "gcc, gcでコメントアウト、コメントイン
-    call dein#add('tomtom/tcomment_vim')
-    "間違いみたいだったら即座に教える
-    call dein#add('w0rp/ale')
-    "括弧を自動で閉じる
-    call dein#add('cohama/lexima.vim')
-    "ログに色付け
-    call dein#add('vim-scripts/AnsiEsc.vim')
-    "Twitterをする
-    call dein#add('twitvim/twitvim')
-    "チートシート
-    call dein#add('reireias/vim-cheatsheet')
+    "起動時に読み込むプラグイン群
+    call dein#load_toml(s:toml_dir . '/dein.toml', {'lazy': 0})
+    "遅延読み込みしたいプラグイン群
+    call dein#load_toml(s:toml_dir . '/dein_lazy.toml', {'lazy': 1})
     " Required:
     call dein#end()
     call dein#save_state()
@@ -297,86 +303,3 @@ if s:dein_enabled == 1
 endif
 "End dein Scripts------------------------- "
 "
-""""""""""""""""""""
-"Set plugin configs"
-""""""""""""""""""""
-"lightline
-set hidden  " allow buffer switching without saving
-set showtabline=2  " always show tabline
-let g:lightline = {
-        \ 'colorscheme': 'wombat',
-        \ 'mode_map': {'c': 'NORMAL'},
-        \ 'active': {
-        \   'left': [ [ 'mode', 'paste' ], [ 'fugitive', 'filename' ] ]
-        \ },
-        \ 'component_function': {
-        \   'modified': 'LightlineModified',
-        \   'readonly': 'LightlineReadonly',
-        \   'fugitive': 'LightlineFugitive',
-        \   'filename': 'LightlineFilename',
-        \   'fileformat': 'LightlineFileformat',
-        \   'filetype': 'LightlineFiletype',
-        \   'fileencoding': 'LightlineFileencoding',
-        \   'mode': 'LightlineMode'
-        \ }
-        \ }
-
-function! LightlineModified()
-  return &ft =~ 'help\|vimfiler\|gundo' ? '' : &modified ? '+' : &modifiable ? '' : '-'
-endfunction
-
-function! LightlineReadonly()
-  return &ft !~? 'help\|vimfiler\|gundo' && &readonly ? 'x' : ''
-endfunction
-
-function! LightlineFilename()
-  return ('' != LightlineReadonly() ? LightlineReadonly() . ' ' : '') .
-        \ (&ft == 'vimfiler' ? vimfiler#get_status_string() :
-        \  &ft == 'unite' ? unite#get_status_string() :
-        \  &ft == 'vimshell' ? vimshell#get_status_string() :
-        \ '' != expand('%:t') ? expand('%:t') : '[No Name]') .
-        \ ('' != LightlineModified() ? ' ' . LightlineModified() : '')
-endfunction
-
-function! LightlineFugitive()
-  if &ft !~? 'vimfiler\|gundo' && exists('*fugitive#head')
-    return fugitive#head()
-  else
-    return ''
-  endif
-endfunction
-
-function! LightlineFileformat()
-  return winwidth(0) > 70 ? &fileformat : ''
-endfunction
-
-function! LightlineFiletype()
-  return winwidth(0) > 70 ? (&filetype !=# '' ? &filetype : 'no ft') : ''
-endfunction
-
-function! LightlineFileencoding()
-  return winwidth(0) > 70 ? (&fenc !=# '' ? &fenc : &enc) : ''
-endfunction
-
-function! LightlineMode()
-  return winwidth(0) > 60 ? lightline#mode() : ''
-endfunction
-"indent_guides
-let g:indent_guides_enable_on_vim_startup = 1
-let g:indent_guides_guide_size = 1
-let g:indent_guides_start_level = 2
-let g:indent_guides_auto_colors=0
-augroup indent_guides_autocmd
-    autocmd!
-    autocmd VimEnter,Colorscheme * :hi IndentGuidesOdd   ctermbg=8
-    autocmd VimEnter,Colorscheme * :hi IndentGuidesEven  ctermbg=238
-augroup END
-"ale
-let g:ale_lint_on_text_changed = 0
-"TwiitVim
-let twitvim_browser_cmd = 'open' " for Mac
-let twitvim_force_ssl = 1
-let twitvim_count = 40
-"cheetsheet
-let g:cheatsheet#cheat_file = s:vimdir . '/cheatsheet'
-"End plugin configs
