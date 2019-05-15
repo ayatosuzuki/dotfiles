@@ -107,7 +107,7 @@ endif
 """"""""""""""""""""""""
 let mapleader = "\<Space>"
 "コード補完するとき
-inoremap <C-i> <C-p>
+inoremap <C-l> <C-p>
 " インサートモードの時に C-j でノーマルモードに戻る
 inoremap <C-j> <esc>
 vnoremap <C-j> <esc>
