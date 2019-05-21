@@ -64,7 +64,9 @@ set nf=hex
 "改行時にインデント継続
 set autoindent
 " マウス使えます
-set mouse=a
+if has('mouse')
+  set mouse=a
+endif
 "バックスペースでの行移動を可能にする
 set backspace=indent,eol,start
 "その場にswpを作らない
@@ -236,70 +238,34 @@ endfunction
 if &compatible
   set nocompatible               " Be iMproved
 endif
-" Flags
-let s:use_dein = 1
-" Prepare .vim dir
-let s:vimdir = $HOME . '/.vim'
-" dein
-let s:dein_enabled  = 0
-if v:version >= 704 && s:use_dein && !filereadable(expand("~/.vim/no_dein"))
-  if executable('git')
-    " Set dein paths
-    let s:dein_dir = s:vimdir . '/bundles'
-    let s:dein_github = s:dein_dir . '/repos/github.com'
-    let s:dein_repo_name = 'Shougo/dein.vim'
-    let s:dein_repo_dir = s:dein_github . '/' . s:dein_repo_name
-    let s:toml_dir = s:vimdir
-    " Check dein has been installed or not.
-    if !isdirectory(s:dein_repo_dir)
-      if confirm("Prepare dein?", "Yes\nNo", 2)  == 1
-        let s:dein_enabled = 1
-        echo 'dein is not installed, install now '
-        let s:dein_repo = 'https://github.com/' . s:dein_repo_name
-        echo 'git clone ' . s:dein_repo . ' ' . s:dein_repo_dir
-        call system('git clone ' . s:dein_repo . ' ' . s:dein_repo_dir)
-      elseif confirm("Show install dein message again?", "Don't show\nShow again", 2) == 1
-        echo 'ok, if you want me show actually, remove ' . s:vimdir . '/no_dein')
-        execute 'redir > ' , s.vimdir . '/no_dein'
-        redir END
-      endif
-    else
-      let s:dein_enabled = 1
-    endif
+"dein.vimインストール時に指定したディレクトリをセット
+let s:dein_dir = expand('~/.vim/bundles')
+"dein.vimの実体があるディレクトリをセット
+let s:dein_repo_dir = s:dein_dir . '/repos/github.com/Shougo/dein.vim'
+" dein.vimが存在していない場合はgithubからclone
+if &runtimepath !~# '/dein.vim'
+  if !isdirectory(s:dein_repo_dir)
+    execute '!git clone https://github.com/Shougo/dein.vim' s:dein_repo_dir
   endif
+  execute 'set runtimepath^=' . fnamemodify(s:dein_repo_dir, ':p')
 endif
-if s:dein_enabled == 1
-  " Required:
-  set runtimepath+=$HOME/.vim/bundles//repos/github.com/Shougo/dein.vim
-  " Required:
-  if !filereadable(s:toml_dir . '/dein.toml')
-      execute "redir > " . s:toml_dir . '/dein.toml'
-      redir END
-  endif
-  if !filereadable(s:toml_dir . '/dein_lazy.toml')
-      execute "redir > " . s:toml_dir . '/dein_lazy.toml'
-      redir END
-  endif
-  if dein#load_state($HOME .  '/.vim/bundles/')
-    call dein#begin($HOME . '/.vim/bundles/')
-    " Let dein manage dein
-    " Required:
-    call dein#add($HOME . '/.vim/bundles//repos/github.com/Shougo/dein.vim')
-    "起動時に読み込むプラグイン群
-    call dein#load_toml(s:toml_dir . '/dein.toml', {'lazy': 0})
-    "遅延読み込みしたいプラグイン群
-    call dein#load_toml(s:toml_dir . '/dein_lazy.toml', {'lazy': 1})
-    " Required:
-    call dein#end()
-    call dein#save_state()
-  endif
-  " Required:
-  filetype plugin indent on
-  syntax enable
-  " If you want to install not installed plugins on startup.
-  if dein#check_install()
-    call dein#install()
-  endif
+"dein.toml, dein_layz.tomlファイルのディレクトリをセット
+let s:toml_dir = expand('~/.vim')
+if dein#load_state(s:dein_dir)
+  call dein#begin(s:dein_dir)
+ "起動時に読み込むプラグイン群
+  call dein#load_toml(s:toml_dir . '/dein.toml', {'lazy': 0})
+ "遅延読み込みしたいプラグイン群
+  call dein#load_toml(s:toml_dir . '/dein_lazy.toml', {'lazy': 1})
+  call dein#end()
+  call dein#save_state()
+endif
+" Required:
+filetype plugin indent on
+syntax enable
+" If you want to install not installed plugins on startup.
+if dein#check_install()
+  call dein#install()
 endif
 "End dein Scripts------------------------- "
 "
