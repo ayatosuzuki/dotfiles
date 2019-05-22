@@ -1,2 +1,0 @@
-100
-['Shougo/context_filetype.vim', 'Shougo/dein.vim', 'cespare/vim-toml', 'cohama/lexima.vim', 'itchyny/lightline.vim', 'nathanaelkane/vim-indent-guides', 'osyo-manga/vim-precious', 'pangloss/vim-javascript', 'reireias/vim-cheatsheet', 'ryanoasis/vim-devicons', 'scrooloose/nerdtree', 'scrooloose/syntastic', 'simeji/winresizer', 'tomtom/tcomment_vim', 'tpope/vim-surround', 'vim-scripts/AnsiEsc.vim', 'w0rp/ale']
