@@ -3,6 +3,7 @@ let s:vimdir = $HOME . '/.vim'
 if has('vim_starting') && ! isdirectory(s:vimdir)
     call mkdir(s:vimdir)
 endif
+
 "全角スペースを血祭りに上げる,これより後にカラースキーマ
 scriptencoding utf-8
 augroup highlightIdegraphicSpace
@@ -10,12 +11,13 @@ augroup highlightIdegraphicSpace
   autocmd Colorscheme * highlight IdeographicSpace term=underline ctermbg=DarkRed guibg=DarkRed
   autocmd VimEnter,WinEnter * match IdeographicSpace /　/
 augroup END
+
 "カラースキーマ molokaiがなければ持ってくる
 if ! filereadable(s:vimdir . '/colors/molokai.vim')
-    if executable('git') && confirm("Prepare molokai form github?", "Yes\nNo", 2) == 1
+    if executable('curl') && confirm("Prepare molokai form github?", "Yes\nNo", 2) == 1
         echo 'Ok, now installing molokai'
-        call system('git clone https://github.com/tomasr/molokai ' . s:vimdir)
-        call system('rm ' . s:vimdir . '/LICENSE.md  ' .s:vimdir . '/README.md')
+	call system('mkdir ' . s:vimdir . '/colors')
+	call system('curl https://raw.githubusercontent.com/tomasr/molokai/master/colors/molokai.vim  > ' . s:vimdir . '/colors/molokai.vim')
         colorscheme molokai
     else
         echo 'molokai is not installed'
@@ -23,6 +25,7 @@ if ! filereadable(s:vimdir . '/colors/molokai.vim')
 else
     colorscheme molokai
 endif
+"256色対応
 set t_Co=256
 "折り返さない
 set nowrap
@@ -38,8 +41,11 @@ set smartcase
 set ruler
 " 行番号を付ける
 set number
-" タブ文字の表示 ^I で表示されるよ
+" タブ文字の表示 ^I で表示される
 set list
+"改行文字
+set listchars=eol:↲
+autocmd BufNewFile,BufRead *.go set nolist
 " コマンドライン補完が強力になる
 set wildmenu
 set wildmode=full
@@ -74,7 +80,7 @@ set directory-=.
 "undoを永続化
 if has('persistent_undo')
     set undofile
-    set undodir=~/tmp
+    set undodir=~/.vim/undofiles
 endif
 "ステータスラインを常に表示
 set laststatus=2
@@ -89,7 +95,7 @@ augroup MyAutoCmd
     "テンプレートファイル
     autocmd BufNewFile *.c 0r $HOME/.vim/template/main.c
     "ファイル指定無しでvimを開いたらNerdTreeを開く
-    autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
+    " autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
 augroup END
 if has("autocmd")
   " 編集箇所のカーソルを記憶
@@ -103,6 +109,7 @@ if has("autocmd")
     \ endif
   augroup END
 endif
+
 
 """"""""""""""""""""""""
 "オリジナルキーバインド"
@@ -149,6 +156,7 @@ nnoremap <Esc><Esc> :nohlsearch<CR><Esc>
 nnoremap <Leader>. :tabnew<CR>:e ~/.vimrc<CR>
 "*を使って検索したときに移動しない
 noremap * *N
+"カーソル下の文字を一括変換
 nnoremap <Leader>re :%s/<C-R><C-W>//gc<Left><Left><Left>
 "tab移動
 nnoremap <Tab> gt
@@ -232,6 +240,7 @@ function! MyExecExCommand(cmd, ...)
 endfunction
 "Emcasライクな挿入モード終了:
 
+
 """"""""""""""
 "dein Scripts"
 """"""""""""""
@@ -239,7 +248,7 @@ if &compatible
   set nocompatible               " Be iMproved
 endif
 "dein.vimインストール時に指定したディレクトリをセット
-let s:dein_dir = expand('~/.vim/dein')
+let s:dein_dir = expand('~/.vim/bundles')
 "dein.vimの実体があるディレクトリをセット
 let s:dein_repo_dir = s:dein_dir . '/repos/github.com/Shougo/dein.vim'
 " dein.vimが存在していない場合はgithubからclone

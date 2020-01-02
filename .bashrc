@@ -13,7 +13,7 @@ alias less='less -R'
 alias inet="ifconfig | grep -E '$|inet'"
 
 alias emacs="vi"
-alias visj='nvim -c ":e ++enc=shift-jis"'
+alias visj='vim -c ":e ++enc=shift-jis"'
 
 alias py="python3"
 alias py2="python"
@@ -38,3 +38,5 @@ else
         PS1="\[\033[32m\][\t \u@\h \w]\n\$ \[\033[0m\]"
     fi
 fi
+
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash

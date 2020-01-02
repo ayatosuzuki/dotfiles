@@ -101,10 +101,6 @@ hook_add = '''
     endfunction
 '''
 
-#tomlファイルをきらびやかに
-[[plugins]]
-repo = 'cespare/vim-toml'
-on_ft = 'toml'
 
 #indentの深さを表すガイド
 [[plugins]]
@@ -140,17 +136,20 @@ repo = 'vim-scripts/AnsiEsc.vim'
 [[plugins]]
 repo = 'reireias/vim-cheatsheet'
 hook_add = '''
-    let g:cheatsheet#cheat_file = '.vim/cheatsheet'
+    let g:cheatsheet#cheat_file = $HOME . '/.vim/cheatsheet'
+    let g:cheatsheet#vsplit = 1
 '''
 
 #カッコをcsで変換したり
 [[plugins]]
 repo = 'tpope/vim-surround'
-
-#閉じカッコ
+#カッコを閉じたりする
 [[plugins]]
 repo = 'cohama/lexima.vim'
-
+hook_add="""
+    call lexima#add_rule({'char': '<CR>', 'at': '"\%#"', 'input': '<CR><TAB>', 'input_after': '<CR>'})
+    call lexima#add_rule({'char': '<CR>', 'at': '''\%#''', 'input': '<CR><TAB>', 'input_after': '<CR>'})
+"""
 #window調整
 [[plugins]]
 repo = 'simeji/winresizer'
@@ -163,3 +162,12 @@ repo = 'Shougo/context_filetype.vim'
 [[plugins]]
 repo = 'osyo-manga/vim-precious'
 depends = ['Shougo/context_filetype.vim']
+
+#atcoderにでc++でテストケースを試すプラグイン
+[[plugins]]
+repo = 'cannot-fly-pig/vim-atcoder'
+
+[[plugins]]
+repo = 'twitvim/twitvim'
+
+
